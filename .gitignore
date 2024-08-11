@@ -1,4 +1,5 @@
 result*
 repl-result-out*
 *.qcow2
+logs/
 

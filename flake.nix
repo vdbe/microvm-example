@@ -13,9 +13,9 @@
     microvm-pre-notify_socket.url = "github:astro/microvm.nix?rev=9d3cc92a8e2f0a36c767042b484cc8b8c6f371d3";
     microvm-pre-notify_socket.inputs.nixpkgs.follows = "nixpkgs";
 
-    microvm-post-notify_socket.url = "github:astro/microvm.nix?rev=ea4cab3cc6ad680a3020166fd18d615b1c15d8df";
+    # microvm-post-notify_socket.url = "github:astro/microvm.nix?rev=ea4cab3cc6ad680a3020166fd18d615b1c15d8df";
     # microvm-post-notify_socket.url = "github:astro/microvm.nix?rev=d5283b0c83df3475ca967aa1ca9496d3e387084a";
-    # microvm-post-notify_socket.url = "github:astro/microvm.nix?rev=a439229a1af9e0fae3b3b21619c1983901a41bf7";
+    microvm-post-notify_socket.url = "github:astro/microvm.nix?rev=a439229a1af9e0fae3b3b21619c1983901a41bf7";
     microvm-post-notify_socket.inputs.nixpkgs.follows = "nixpkgs";
 
     disko.url = "github:nix-community/disko";
@@ -39,7 +39,9 @@
         "cloud-hypervisor"
       ];
       vmConfigs = {
-        default = { };
+        default = {
+          # autostart = false;
+        };
         # noSocket = {
         #   config = {
         #     microvm.socket = null;
@@ -67,6 +69,10 @@
               name = "${hypervisor}-${vmConfig.name}";
               value = lib.recursiveUpdate {
                 config = {
+                  boot.kernelParams = lib.mkForce [
+                    "root=fstab"
+                    "verbose"
+                  ];
                   microvm.hypervisor = hypervisor;
                 };
               } vmConfig.value;
@@ -88,12 +94,14 @@
             disko.nixosModules.disko
             {
               microvm = {
-                host.useNotifySockets = true;
+                # host.useNotifySockets = true;
                 inherit vms;
               };
             }
             {
               # boot.kernelPackages = pkgs.linuxPackages_latest;
+
+              boot.kernelParams = lib.mkForce [ "verbose" ];
               networking.hostName = "microvm-host";
               users.mutableUsers = false;
               users.users.root.password = "password";
